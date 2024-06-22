@@ -16,7 +16,7 @@ function genericGoToMoreCapacity(i: Instruction, possiblenNexts: Component[]) {
 		.id;
 }
 
-export const IMTComponents: Component[] = [
+export const Pentium1Simulator: Component[] = [
 	{
 		name: 'Memória de Instruções',
 		id: 'IM',
@@ -27,7 +27,16 @@ export const IMTComponents: Component[] = [
 			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x3, 6, 5, 4), // xor x6, x5, x4 (exclusive or)
 			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x4, 7, 6, 5), // srl x7, x6, x5 (shift right logical)
 			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x5, 8, 7, 6), // or x8, x7, x6 (logical OR)
-			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x6, 9, 8, 7) // and x9, x8, x7 (logical AND)
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x6, 9, 8, 7), // and x9, x8, x7 (logical AND)
+			// make conflicts so we can test bubbles
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x7, 10, 9, 8), // add x10, x9, x8
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x8, 11, 10, 9), // add x11, x10, x9
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x9, 12, 11, 10), // add x12, x11, x10
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0xa, 13, 12, 11), // add x13, x12, x11
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0xb, 14, 13, 12), // add x14, x13, x12
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0xc, 15, 14, 13), // add x15, x14, x13
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0xd, 16, 15, 14), // add x16, x15, x14
+			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0xe, 17, 16, 15) // add x17, x16, x15
 		],
 		goingTo: ['IF'],
 		instructionsPerCycle: 2
@@ -114,7 +123,7 @@ export const IMTComponents: Component[] = [
 
 export class ProcessorManager {
 	private clock = 0;
-	public components: Writable<Component[]> = writable(IMTComponents);
+	public components: Writable<Component[]> = writable(Pentium1Simulator);
 	constructor() {}
 	async run() {
 		const executeCycle = () => {

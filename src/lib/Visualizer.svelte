@@ -16,7 +16,7 @@
 	// 👇 this is important! You need to import the styles for Svelte Flow to work
 	import '@xyflow/svelte/dist/style.css';
 	import Dagre from 'dagre';
-	import { IMTComponents, ProcessorManager, type Component } from './components';
+	import { Pentium1Simulator, ProcessorManager, type Component } from './components';
 	import { onMount } from 'svelte';
 	import ComponentNode from './ComponentNode.svelte';
 
@@ -40,9 +40,9 @@
 		const multiplier = 1;
 		g.setGraph({
 			rankdir: options.direction,
-			edgesep: 200 * multiplier,
-			nodesep: 80 * multiplier,
-			ranksep: 300 * multiplier
+			edgesep: 125 * multiplier,
+			nodesep: 50 * multiplier,
+			ranksep: 250 * multiplier
 		});
 
 		edges.forEach((edge) => g.setEdge(edge.source, edge.target));

@@ -25,47 +25,48 @@
 	function togglePause() {
 		config.update((c) => ({ ...c, pause: !c.pause }));
 	}
-
 </script>
 
 <div class="h-screen">
-	<div class="flex flex-col space-y-4 mt-2 ml-2">
-		<div class="flex items-center space-x-2">
-			<button
-				class="btn btn-primary"
-				class:selected={$config.multithreading === 'no'}
-				on:click={() => setMultithreading('no')}>No Multithreading</button
-			>
-			<button
-				class="btn btn-primary"
-				class:selected={$config.multithreading === 'imt'}
-				on:click={() => setMultithreading('imt')}>IMT</button
-			>
-			<button
-				class="btn btn-primary"
-				class:selected={$config.multithreading === 'bmt'}
-				on:click={() => setMultithreading('bmt')}>BMT</button
-			>
-			<button
-				class="btn btn-primary"
-				class:selected={$config.multithreading === 'smt'}
-				on:click={() => setMultithreading('smt')}>SMT</button
-			>
-			<div class="ml-40"></div>
-			<button
-				class="btn btn-primary"
-				class:selected={$config.scalar === 'scalar'}
-				on:click={() => setScalar('scalar')}>Scalar</button
-			>
-			<button
-				class="btn btn-primary"
-				class:selected={$config.scalar === 'super-scalar'}
-				on:click={() => setScalar('super-scalar')}>Super-Scalar</button
-			>
-			<div class="ml-40"></div>
-			<button class="btn btn-primary" class:paused={$config.pause} on:click={togglePause}
-				>{$config.pause ? 'Resume' : 'Pause'}</button
-			>
+	<div class="absolute z-50">
+		<div class="flex flex-col space-y-4 mt-2 ml-2">
+			<div class="flex items-center space-x-2">
+				<button
+					class="btn btn-primary"
+					class:selected={$config.multithreading === 'no'}
+					on:click={() => setMultithreading('no')}>No Multithreading</button
+				>
+				<button
+					class="btn btn-primary"
+					class:selected={$config.multithreading === 'imt'}
+					on:click={() => setMultithreading('imt')}>IMT</button
+				>
+				<button
+					class="btn btn-primary"
+					class:selected={$config.multithreading === 'bmt'}
+					on:click={() => setMultithreading('bmt')}>BMT</button
+				>
+				<button
+					class="btn btn-primary"
+					class:selected={$config.multithreading === 'smt'}
+					on:click={() => setMultithreading('smt')}>SMT</button
+				>
+				<div class="ml-40"></div>
+				<button
+					class="btn btn-primary"
+					class:selected={$config.scalar === 'scalar'}
+					on:click={() => setScalar('scalar')}>Scalar</button
+				>
+				<button
+					class="btn btn-primary"
+					class:selected={$config.scalar === 'super-scalar'}
+					on:click={() => setScalar('super-scalar')}>Super-Scalar</button
+				>
+				<div class="ml-40"></div>
+				<button class="btn btn-primary" class:paused={$config.pause} on:click={togglePause}
+					>{$config.pause ? 'Resume' : 'Pause'}</button
+				>
+			</div>
 		</div>
 	</div>
 	<div class="h-full">

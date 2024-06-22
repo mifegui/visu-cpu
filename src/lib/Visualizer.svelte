@@ -82,7 +82,7 @@
 
 		comps.forEach((a, i) => {
 			a.goingTo.forEach((gt) => {
-				const edgeKey = a.id + '-' + a.goingTo;
+				const edgeKey = a.id + '-' + gt;
 				const label = '';
 
 				if (edgeMap.has(edgeKey)) {

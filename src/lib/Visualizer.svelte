@@ -16,7 +16,7 @@
 	// 👇 this is important! You need to import the styles for Svelte Flow to work
 	import '@xyflow/svelte/dist/style.css';
 	import Dagre from 'dagre';
-	import { ProcessorManager} from './components';
+	import { ProcessorManager } from './components';
 	import { type Component } from './component';
 	import { onMount } from 'svelte';
 	import ComponentNode from './ComponentNode.svelte';
@@ -25,13 +25,8 @@
 	export let config: Writable<Configuration>;
 	// let { dm }: { dm: DataManager } = $props();
 
-	// $: createNodesAndEdges(dm.state.analyizis);
-	// onMount(() => {
-	// 	createNodesAndEdges(IMTComponents);
-	// });
-	let pm = new ProcessorManager($config.scalar);
-	$: pm.onConfigChange($config.scalar);
-	$: pm.run();
+	let pm = new ProcessorManager(config);
+	pm.run();
 	$: comps = pm.components;
 	$: createNodesAndEdges($comps);
 
@@ -138,13 +133,11 @@ This means that the parent container needs a height to render the flow.
 <!-- on:nodeclick={(event) => console.log('on node click', event.detail.node)} -->
 <div class="h-full">
 	<!-- {#key $comps} -->
-	 {#key $config}
 	<SvelteFlow {nodeTypes} {nodes} {edges} {snapGrid} fitView proOptions={{ hideAttribution: true }}>
 		<Controls />
 		<Background variant={BackgroundVariant.Dots} />
 		<!-- <MiniMap /> -->
 	</SvelteFlow>
-	{/key}
 	<!-- {/key} -->
 </div>
 

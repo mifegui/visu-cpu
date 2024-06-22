@@ -1,6 +1,7 @@
 import { read } from '$app/server';
 import { readable, writable, type Writable } from 'svelte/store';
 import { Instruction, InstructionType } from './instruction';
+import { copyArchitecture } from './configuration';
 
 export interface Component {
 	id: string;
@@ -16,6 +17,7 @@ function genericGoToMoreCapacity(i: Instruction, possiblenNexts: Component[]) {
 		.id;
 }
 
+// No Multithread Superescalar
 export const Pentium1Simulator: Component[] = [
 	{
 		name: 'Memória de Instruções',
@@ -121,6 +123,8 @@ export const Pentium1Simulator: Component[] = [
 	}
 ];
 
+
+// No Multihread Superescalar
 export const EscalarSimulator: Component[] = [
 	{
 		name: 'Memória de Instruções',
@@ -197,3 +201,8 @@ export const EscalarSimulator: Component[] = [
 		instructionsPerCycle: 1
 	}
 ];
+
+
+// copy from 
+let ScalarIMT: Component[] = copyArchitecture(EscalarSimulator);
+

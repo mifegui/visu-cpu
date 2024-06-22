@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { writable, type Writable } from 'svelte/store';
+	import { writable, get, type Writable } from 'svelte/store';
 	import {
 		SvelteFlow,
 		Controls,
@@ -16,7 +16,8 @@
 	// 👇 this is important! You need to import the styles for Svelte Flow to work
 	import '@xyflow/svelte/dist/style.css';
 	import Dagre from 'dagre';
-	import { Pentium1Simulator, ProcessorManager, type Component } from './components';
+	import { ProcessorManager} from './components';
+	import { type Component } from './component';
 	import { onMount } from 'svelte';
 	import ComponentNode from './ComponentNode.svelte';
 	import type { Configuration } from './configuration';
@@ -28,10 +29,10 @@
 	// onMount(() => {
 	// 	createNodesAndEdges(IMTComponents);
 	// });
-
-	const pm = new ProcessorManager();
-	pm.run();
-	const comps = pm.components;
+	let pm = new ProcessorManager($config.scalar);
+	$: pm.onConfigChange($config.scalar);
+	$: pm.run();
+	$: comps = pm.components;
 	$: createNodesAndEdges($comps);
 
 	const nodes = writable<Node[]>([]);
@@ -137,11 +138,13 @@ This means that the parent container needs a height to render the flow.
 <!-- on:nodeclick={(event) => console.log('on node click', event.detail.node)} -->
 <div class="h-full">
 	<!-- {#key $comps} -->
+	 {#key $config}
 	<SvelteFlow {nodeTypes} {nodes} {edges} {snapGrid} fitView proOptions={{ hideAttribution: true }}>
 		<Controls />
 		<Background variant={BackgroundVariant.Dots} />
 		<!-- <MiniMap /> -->
 	</SvelteFlow>
+	{/key}
 	<!-- {/key} -->
 </div>
 

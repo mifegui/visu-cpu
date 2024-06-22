@@ -1,15 +1,16 @@
 import { read } from '$app/server';
 import { readable, writable, type Writable } from 'svelte/store';
-import { Instruction, InstructionType } from './simulator';
+import { Instruction, InstructionType } from './instruction';
 
 export interface Component {
 	id: string;
 	name: string;
 	instructionsInside: Instruction[];
 	goingTo: Component['id'][];
+	instructionsPerCycle: number;
 }
 
-export const IMTComponents = [
+export const IMTComponents: Component[] = [
 	{
 		name: 'IF', // Instruction Fetch
 		id: 'IF',
@@ -22,31 +23,36 @@ export const IMTComponents = [
 			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x5, 8, 7, 6), // or x8, x7, x6 (logical OR)
 			new Instruction(InstructionType.R_TYPE, 0x33, 0x0, 0x6, 9, 8, 7) // and x9, x8, x7 (logical AND)
 		],
-		goingTo: ['ID']
+		goingTo: ['ID'],
+		instructionsPerCycle: 1
 	},
 	{
 		name: 'ID', // Instruction Decode
 		id: 'ID',
 		instructionsInside: [],
-		goingTo: ['EX']
+		goingTo: ['EX'],
+		instructionsPerCycle: 1
 	},
 	{
 		name: 'EX', // Execute
 		id: 'EX',
 		instructionsInside: [],
-		goingTo: ['MEM']
+		goingTo: ['MEM'],
+		instructionsPerCycle: 1
 	},
 	{
 		name: 'MEM', // Memory
 		id: 'MEM',
 		instructionsInside: [],
-		goingTo: ['WB']
+		goingTo: ['WB'],
+		instructionsPerCycle: 1
 	},
 	{
 		name: 'WB', // Write Back
 		id: 'WB',
 		instructionsInside: [],
-		goingTo: []
+		goingTo: [],
+		instructionsPerCycle: 1
 	}
 ];
 
@@ -58,24 +64,30 @@ export class ProcessorManager {
 		const executeCycle = () => {
 			this.clock++;
 			this.components.update((components) => {
-				components.forEach((component) => {
-					if (component.instructionsInside.length > 0) {
+				const processed: Instruction[] = [];
+				for (let i = components.length - 1; i >= 0; i--) {
+					let component = components[i];
+					if (component.instructionsInside.length == 0) continue;
+					for (let j = 0; j < component.instructionsPerCycle; j++) {
 						const instruction = component.instructionsInside.shift();
-						if (instruction) {
-							const nextComponent = components.find((c) => c.id === component.goingTo[0]);
-							if (nextComponent) {
-								nextComponent.instructionsInside.push(instruction);
-							}
+						if (!instruction) continue;
+						console.log(processed);
+						if (processed.find((i) => i.id == instruction!.id)) continue;
+
+						const nextComponent = components.find((c) => c.id === component.goingTo[0]);
+						if (nextComponent) {
+							nextComponent.instructionsInside.push(instruction);
+							console.log(nextComponent);
+							processed.push(instruction);
 						}
 					}
-				});
-				console.log(components)
+				}
 				return components;
 			});
 			setTimeout(() => {
 				executeCycle();
 			}, 2000);
 		};
-		// executeCycle();
+		executeCycle();
 	}
 }

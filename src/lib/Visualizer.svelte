@@ -20,7 +20,6 @@
 	import { onMount } from 'svelte';
 	import ComponentNode from './ComponentNode.svelte';
 
-	let counter = 0;
 	// let { dm }: { dm: DataManager } = $props();
 
 	// $: createNodesAndEdges(dm.state.analyizis);
@@ -32,7 +31,6 @@
 	pm.run();
 	const comps = pm.components;
 	$: createNodesAndEdges($comps);
-	$: console.log($comps);
 
 	const nodes = writable<Node[]>([]);
 	const edges = writable<Edge[]>([]);
@@ -122,8 +120,6 @@
 
 		nodes.set(res.nodes);
 		edges.set(res.edges);
-
-		counter++;
 	}
 
 	const snapGrid: [number, number] = [25, 25];
@@ -138,11 +134,13 @@ This means that the parent container needs a height to render the flow.
 -->
 <!-- on:nodeclick={(event) => console.log('on node click', event.detail.node)} -->
 <div class="h-full">
+	<!-- {#key $comps} -->
 	<SvelteFlow {nodeTypes} {nodes} {edges} {snapGrid} fitView proOptions={{ hideAttribution: true }}>
 		<Controls />
 		<Background variant={BackgroundVariant.Dots} />
 		<!-- <MiniMap /> -->
 	</SvelteFlow>
+	<!-- {/key} -->
 </div>
 
 <!--  -->

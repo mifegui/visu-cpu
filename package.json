@@ -32,6 +32,7 @@
 	"dependencies": {
 		"@xyflow/svelte": "^0.1.7",
 		"dagre": "^0.8.5",
-		"immer": "^10.1.1"
+		"immer": "^10.1.1",
+		"nanoid": "^5.0.7"
 	}
 }

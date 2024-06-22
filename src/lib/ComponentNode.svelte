@@ -7,7 +7,7 @@
 
 	export let data: { component: Component };
 
-	const { component } = data;
+	$: component = data.component;
 </script>
 
 <div class="component">

@@ -26,7 +26,6 @@
 		config.update((c) => ({ ...c, pause: !c.pause }));
 	}
 
-	// Store subscription for reactive variables
 </script>
 
 <div class="h-screen">

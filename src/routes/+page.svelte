@@ -27,12 +27,6 @@
 	}
 
 	// Store subscription for reactive variables
-	let multithreading, scalar, pause;
-	config.subscribe((c) => {
-		multithreading = c.multithreading;
-		scalar = c.scalar;
-		pause = c.pause;
-	});
 </script>
 
 <div class="h-screen">

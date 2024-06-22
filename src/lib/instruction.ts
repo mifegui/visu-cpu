@@ -22,6 +22,7 @@ export enum InstructionType {
 export class Instruction {
 	public id: string = nanoid(7);
 	constructor(
+		public thread: number,
 		public type: InstructionType,
 		public opcode: number,
 		public func3?: number,

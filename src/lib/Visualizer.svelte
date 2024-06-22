@@ -150,10 +150,10 @@ This means that the parent container needs a height to render the flow.
 
 <!--  -->
 <style lang="postcss">
-	:global(.svelte-flow__node.not-done) {
+	:global(.svelte-flow__node.red) {
 		background-color: theme('colors.red.100');
 	}
-	:global(.svelte-flow__node.done) {
+	:global(.svelte-flow__node.blue) {
 		background-color: theme('colors.green.100');
 	}
 </style>

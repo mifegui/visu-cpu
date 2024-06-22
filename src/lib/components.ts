@@ -68,7 +68,6 @@ export class ProcessorManager {
 				this.metrics.setIpc(15 / this.clock);
 				this.isOver = true;
 			}
-			return components;
 		}
 		return components;
 	}

@@ -19,7 +19,9 @@
 	import { Pentium1Simulator, ProcessorManager, type Component } from './components';
 	import { onMount } from 'svelte';
 	import ComponentNode from './ComponentNode.svelte';
+	import type { Configuration } from './configuration';
 
+	export let config: Writable<Configuration>;
 	// let { dm }: { dm: DataManager } = $props();
 
 	// $: createNodesAndEdges(dm.state.analyizis);
@@ -42,7 +44,7 @@
 			rankdir: options.direction,
 			edgesep: 125 * multiplier,
 			nodesep: 50 * multiplier,
-			ranksep: 250 * multiplier
+			ranksep: 300 * multiplier
 		});
 
 		edges.forEach((edge) => g.setEdge(edge.source, edge.target));

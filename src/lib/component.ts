@@ -16,7 +16,7 @@ function genericGoToMoreCapacity(i: Instruction, possiblenNexts: Component[]) {
 }
 
 function randomInstructions(): Instruction {
-	const op = ['add', 'sub', 'lw', 'sw', 'slt', 'xor', 'or'];
+	const op = ['add', 'sub', 'lw', 'sw', 'lw', 'sw', 'lw', 'slt', 'xor', 'or'];
 	const registers = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9'];
 	const randomOp = op[Math.floor(Math.random() * op.length)];
 	const randomRegisters = registers[Math.floor(Math.random() * registers.length)];
@@ -32,7 +32,16 @@ function randomInstructions(): Instruction {
 	);
 }
 
+function generateManyRandomInstructions(n: number): Instruction[] {
+	const instructions: Instruction[] = [];
+	for (let i = 0; i < n; i++) {
+		instructions.push(randomInstructions());
+	}
+	return instructions;
+}
+
 function defaultInstructions() {
+	return generateManyRandomInstructions(50);
 	return [
 		new Instruction(0, 'add x1, x2, x3'),
 		new Instruction(0, 'lw x2, 0(x1)'),
@@ -58,7 +67,7 @@ function createPentium1Simulator(numPipelines: number): Component[] {
 			id: 'IM',
 			instructionsInside: defaultInstructions(),
 			goingTo: ['IF'],
-			instructionsPerCycle: 2
+			instructionsPerCycle: 4
 		},
 		{
 			name: 'Banco de registradores',
@@ -72,8 +81,9 @@ function createPentium1Simulator(numPipelines: number): Component[] {
 			id: 'IF',
 			instructionsInside: [],
 			goingTo: Array.from({ length: numPipelines }, (_, i) => `OF${i + 1}`),
-			instructionsPerCycle: 2,
-			decideToGoWhere: (ins, possiblenNexts) => possiblenNexts[Math.floor(Math.random() * possiblenNexts.length)].id
+			instructionsPerCycle: 4,
+			decideToGoWhere: (ins, possiblenNexts) =>
+				possiblenNexts[Math.floor(Math.random() * possiblenNexts.length)].id
 		}
 	];
 
@@ -127,14 +137,14 @@ function createPentium1Simulator(numPipelines: number): Component[] {
 				id: `MEM${i}`,
 				instructionsInside: [],
 				goingTo: [`OS${i}`, 'MD'],
-				instructionsPerCycle: 1
+				instructionsPerCycle: 2
 			},
 			{
 				name: 'OS',
 				id: `OS${i}`,
 				instructionsInside: [],
 				goingTo: ['BR'],
-				instructionsPerCycle: 1
+				instructionsPerCycle: 2
 			}
 		);
 	}
@@ -216,21 +226,21 @@ export const EscalarSimulator: Component[] = [
 		id: 'MEM',
 		instructionsInside: [],
 		goingTo: ['OS', 'MD'],
-		instructionsPerCycle: 1
+		instructionsPerCycle: 2
 	},
 	{
 		name: 'OS',
 		id: 'OS',
 		instructionsInside: [],
 		goingTo: ['BR'],
-		instructionsPerCycle: 1
+		instructionsPerCycle: 2
 	},
 	{
 		name: 'Memória de dados',
 		id: 'MD',
 		goingTo: [],
 		instructionsInside: [],
-		instructionsPerCycle: 1
+		instructionsPerCycle: 2
 	}
 ];
 
@@ -307,4 +317,8 @@ export function copyArchitecture(arch: Component[]) {
 			goingTo: [...component.goingTo]
 		};
 	});
+}
+
+export function numberOfInstructionsFromComponents(comps: Component[]) {
+	return comps.reduce((acc, comp) => acc + comp.instructionsInside.length, 0);
 }

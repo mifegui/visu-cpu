@@ -44,12 +44,15 @@
 	</div>
 
 	<div class="instructions">
-		{#each component.instructionsInside as is}
+		{#each component.instructionsInside.slice(0, 20) as is}
 			<div class={'instruction ' + getTailwindClassNameForColor(is)}>
 				{is.toString()}
 			</div>
 		{/each}
 	</div>
+	{#if component.instructionsInside.length > 20}
+		<div class="instruction">...</div>
+	{/if}
 	<Handle type="source" id="b" position={Position.Right} />
 
 	<div class="footer">

@@ -40,7 +40,7 @@
 		g.setGraph({
 			rankdir: options.direction,
 			edgesep: 125 * multiplier,
-			nodesep: 180 * multiplier,
+			nodesep: 200 * multiplier,
 			ranksep: 300 * multiplier
 		});
 

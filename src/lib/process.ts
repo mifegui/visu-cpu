@@ -1,7 +1,13 @@
 import { read } from '$app/server';
 import { get, readable, writable, type Writable } from 'svelte/store';
 import { Instruction } from './instruction';
-import { EscalarSimulator, Pentium1Simulator, copyArchitecture, type Component } from './component';
+import {
+	EscalarSimulator,
+	Pentium1Simulator,
+	copyArchitecture,
+	numberOfInstructionsFromComponents,
+	type Component
+} from './component';
 import { configToArchitectureMatrix, type Configuration } from './configuration';
 import { Metrics } from './metrics';
 
@@ -42,7 +48,9 @@ export class ProcessorManager {
 	}
 	isRegisterBankFull(components: Component[]): boolean {
 		const registerBank = components.find((component) => component.id === 'BR');
-		return registerBank ? registerBank.instructionsInside.length === 15 : false;
+		return registerBank
+			? registerBank.instructionsInside.length === numberOfInstructionsFromComponents(components)
+			: false;
 	}
 	countCycles(component: Component) {
 		if (
@@ -61,10 +69,16 @@ export class ProcessorManager {
 		for (let i = components.length - 1; i >= 0; i--) {
 			let component = components[i];
 			if (component.instructionsInside.length == 0) continue;
-			for (let j = 0; j < component.instructionsPerCycle; j++) {
+			let nProcessed = 0;
+			let toRemove = [];
+			for (
+				let j = 0;
+				j < component.instructionsInside.length && nProcessed < component.instructionsPerCycle;
+				j++
+			) {
 				if (!component.goingTo.length) continue;
 				this.countCycles(component);
-				const instruction = component.instructionsInside.shift();
+				const instruction = component.instructionsInside[j];
 				if (!instruction) continue;
 				if (processed.find((i) => i.id == instruction!.id)) continue;
 
@@ -79,16 +93,28 @@ export class ProcessorManager {
 				if (
 					nextComponent.maxInside &&
 					nextComponent.instructionsInside.length >= nextComponent.maxInside
-				)
+				) {
 					continue;
+				}
+
+				toRemove.push(component.instructionsInside[j]);
 				nextComponent.instructionsInside.push(instruction);
 				processed.push(instruction);
+				nProcessed++;
 			}
+			toRemove.forEach((ins) => {
+				component.instructionsInside = component.instructionsInside.filter((i) => i.id != ins.id);
+			});
 			if (this.isRegisterBankFull(components)) {
-				console.log('Banco de Registradores está cheio com 15 instruções.');
-				console.log('IPC: ', 15 / this.numExecutionCycles);
+				// console.log('Banco de Registradores está cheio com  instruções.`);
+				console.log(
+					'IPC: ',
+					numberOfInstructionsFromComponents(components) / this.numExecutionCycles
+				);
 				console.log('clock: ', this.clock);
-				this.metrics.setIpc(15 / this.numExecutionCycles);
+				this.metrics.setIpc(
+					numberOfInstructionsFromComponents(components) / this.numExecutionCycles
+				);
 				this.metrics.setCiclos(this.numExecutionCycles);
 				this.isOver = true;
 			}

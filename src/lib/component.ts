@@ -1,4 +1,4 @@
-import { Instruction, InstructionType } from './instruction';
+import { Instruction } from './instruction';
 
 export interface Component {
 	id: string;
@@ -6,6 +6,7 @@ export interface Component {
 	instructionsInside: Instruction[];
 	goingTo: Component['id'][];
 	instructionsPerCycle: number;
+	maxInside?: number;
 	decideToGoWhere?: (instruction: Instruction, possiblenNexts: Component[]) => Component['id'];
 }
 
@@ -16,22 +17,21 @@ function genericGoToMoreCapacity(i: Instruction, possiblenNexts: Component[]) {
 
 function defaultInstructions() {
 	return [
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x0, 1, 2, 3), // add x1, x2, x3
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x1, 4, 1, 2), // sll x4, x1, x2 (shift left logical)
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x2, 5, 4, 1), // slt x5, x4, x1 (set less than)
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x3, 6, 5, 4), // xor x6, x5, x4 (exclusive or)
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x4, 7, 6, 5), // srl x7, x6, x5 (shift right logical)
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x5, 8, 7, 6), // or x8, x7, x6 (logical OR)
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x6, 9, 8, 7), // and x9, x8, x7 (logical AND)
-		// make conflicts so we can test bubbles
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x7, 10, 9, 8), // add x10, x9, x8
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x8, 11, 10, 9), // add x11, x10, x9
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0x9, 12, 11, 10), // add x12, x11, x10
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0xa, 13, 12, 11), // add x13, x12, x11
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0xb, 14, 13, 12), // add x14, x13, x12
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0xc, 15, 14, 13), // add x15, x14, x13
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0xd, 16, 15, 14), // add x16, x15, x14
-		new Instruction(0, InstructionType.R_TYPE, 0x33, 0x0, 0xe, 17, 16, 15) // add x17, x16, x15
+		new Instruction(0, 'add x1, x2, x3'),
+		new Instruction(0, 'lw x2, 0(x1)'),
+		new Instruction(0, 'slt x5, x4, x1'),
+		new Instruction(0, 'xor x6, x5, x4'),
+		new Instruction(0, 'sw x3, 0(x2)'),
+		new Instruction(0, 'or x8, x7, x6'),
+		new Instruction(0, 'sw x9, 0(x8)'),
+		new Instruction(0, 'add x10, x9, x8'),
+		new Instruction(0, 'add x11, x10, x9'),
+		new Instruction(0, 'lw x1, 0(x2)'),
+		new Instruction(0, 'add x13, x12, x11'),
+		new Instruction(0, 'lw x14, 0(x13)'),
+		new Instruction(0, 'lw x15, 0(x14)'),
+		new Instruction(0, 'add x16, x15, x14'),
+		new Instruction(0, 'sub x1, x2, x3')
 	];
 }
 export const Pentium1Simulator: Component[] = [
@@ -62,42 +62,86 @@ export const Pentium1Simulator: Component[] = [
 		id: 'OF2',
 		instructionsInside: [],
 		goingTo: ['JI'],
-		instructionsPerCycle: 1
+		instructionsPerCycle: 2
 	},
 	{
 		name: 'OF',
 		id: 'OF',
 		instructionsInside: [],
 		goingTo: ['JI2'],
-		instructionsPerCycle: 1
+		instructionsPerCycle: 2
 	},
 	{
 		name: 'Janela de instruções',
 		id: 'JI',
 		instructionsInside: [],
-		goingTo: ['EX2'],
-		instructionsPerCycle: 1
+		goingTo: ['ULA', 'LU', 'SU'],
+		decideToGoWhere: (ins: Instruction, _) => {
+			if (ins.toString().includes('lw')) return 'LU';
+			if (ins.toString().includes('sw')) return 'SU';
+			return 'ULA';
+		},
+		instructionsPerCycle: 2
 	},
 	{
 		name: 'Janela de instruções',
 		id: 'JI2',
 		instructionsInside: [],
-		goingTo: ['EX'],
-		instructionsPerCycle: 1
+		goingTo: ['ULA2', 'LU2', 'SU2'],
+		decideToGoWhere: (ins: Instruction, _) => {
+			if (ins.toString().includes('lw')) return 'LU2';
+			if (ins.toString().includes('sw')) return 'SU2';
+			return 'ULA2';
+		},
+		instructionsPerCycle: 2
 	},
 	{
-		name: 'EX', // Execute
-		id: 'EX2',
-		instructionsInside: [],
-		goingTo: ['MEM2'],
-		instructionsPerCycle: 1
-	},
-	{
-		name: 'EX', // Execute
-		id: 'EX',
+		name: 'ULA',
+		id: 'ULA',
 		instructionsInside: [],
 		goingTo: ['MEM'],
-		instructionsPerCycle: 1
+		instructionsPerCycle: 1,
+		maxInside: 1
+	},
+	{
+		name: 'Load Unit',
+		id: 'LU',
+		instructionsInside: [],
+		goingTo: ['MEM'],
+		instructionsPerCycle: 1,
+		maxInside: 1
+	},
+	{
+		name: 'Store Unit',
+		id: 'SU',
+		instructionsInside: [],
+		goingTo: ['MEM'],
+		instructionsPerCycle: 1,
+		maxInside: 1
+	},
+	{
+		name: 'ULA',
+		id: 'ULA2',
+		instructionsInside: [],
+		goingTo: ['MEM2'],
+		instructionsPerCycle: 1,
+		maxInside: 1
+	},
+	{
+		name: 'Load Unit',
+		id: 'LU2',
+		instructionsInside: [],
+		goingTo: ['MEM2'],
+		instructionsPerCycle: 1,
+		maxInside: 1
+	},
+	{
+		name: 'Store Unit',
+		id: 'SU2',
+		instructionsInside: [],
+		goingTo: ['MEM2'],
+		instructionsPerCycle: 1,
+		maxInside: 1
 	},
 	{
 		name: 'MEM', // Memory
@@ -157,22 +201,43 @@ export const EscalarSimulator: Component[] = [
 		id: 'IF',
 		instructionsInside: [],
 		goingTo: ['OF'],
-		instructionsPerCycle: 2,
-		decideToGoWhere: genericGoToMoreCapacity
+		instructionsPerCycle: 2
 	},
 	{
 		name: 'OF',
 		id: 'OF',
 		instructionsInside: [],
-		goingTo: ['EX'],
-		instructionsPerCycle: 1
+		goingTo: ['ULA', 'LU', 'SU'],
+		decideToGoWhere: (ins: Instruction, _) => {
+			if (ins.toString().includes('lw')) return 'LU';
+			if (ins.toString().includes('sw')) return 'SU';
+			return 'ULA';
+		},
+		instructionsPerCycle: 2
 	},
 	{
-		name: 'EX', // Execute
-		id: 'EX',
+		name: 'ULA',
+		id: 'ULA',
 		instructionsInside: [],
 		goingTo: ['MEM'],
-		instructionsPerCycle: 1
+		instructionsPerCycle: 1,
+		maxInside: 1
+	},
+	{
+		name: 'Load Unit',
+		id: 'LU',
+		instructionsInside: [],
+		goingTo: ['MEM'],
+		instructionsPerCycle: 1,
+		maxInside: 1
+	},
+	{
+		name: 'Store Unit',
+		id: 'SU',
+		instructionsInside: [],
+		goingTo: ['MEM'],
+		instructionsPerCycle: 1,
+		maxInside: 1
 	},
 	{
 		name: 'MEM', // Memory

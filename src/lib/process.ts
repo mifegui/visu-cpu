@@ -1,6 +1,6 @@
 import { read } from '$app/server';
 import { get, readable, writable, type Writable } from 'svelte/store';
-import { Instruction, InstructionType } from './instruction';
+import { Instruction } from './instruction';
 import { EscalarSimulator, Pentium1Simulator, copyArchitecture, type Component } from './component';
 import { configToArchitectureMatrix, type Configuration } from './configuration';
 import { Metrics } from './metrics';
@@ -45,10 +45,14 @@ export class ProcessorManager {
 		return registerBank ? registerBank.instructionsInside.length === 15 : false;
 	}
 	countCycles(component: Component) {
-		if (component.id === 'EX') {
-		console.log('ex');
-		this.numExecutionCycles++;
-		console.log(this.numExecutionCycles);
+		if (
+			component.id.includes('EX') ||
+			component.id.includes('ULA') ||
+			component.id.includes('LU') ||
+			component.id.includes('SU')
+		) {
+			this.numExecutionCycles++;
+			console.log(this.numExecutionCycles);
 		}
 	}
 
@@ -71,10 +75,14 @@ export class ProcessorManager {
 							component.goingTo.map((id) => components.find((c) => c.id === id)!)
 						);
 				const nextComponent = components.find((c) => c.id === nextComponentId);
-				if (nextComponent) {
-					nextComponent.instructionsInside.push(instruction);
-					processed.push(instruction);
-				}
+				if (!nextComponent) continue;
+				if (
+					nextComponent.maxInside &&
+					nextComponent.instructionsInside.length >= nextComponent.maxInside
+				)
+					continue;
+				nextComponent.instructionsInside.push(instruction);
+				processed.push(instruction);
 			}
 			if (this.isRegisterBankFull(components)) {
 				console.log('Banco de Registradores está cheio com 15 instruções.');

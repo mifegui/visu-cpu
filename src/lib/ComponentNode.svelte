@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
 	import type { Writable } from 'svelte/store';
-	import type { Component } from './process'
+	import type { Component } from './process';
 	import { Instruction } from './instruction';
 
 	type $$Props = NodeProps;
@@ -56,6 +56,9 @@
 		<!-- <p>Adicionadas: {instructionsAdded}</p>
 		<p>Removidas: {instructionsRemoved}</p> -->
 		<p>Por ciclo: {instructionsPerCycle}</p>
+		{#if component.maxInside}
+			<p>Capacidade: {component.maxInside}</p>
+		{/if}
 	</div>
 </div>
 

@@ -1,8 +1,4 @@
-import { read } from '$app/server';
-import { readable, writable, type Writable } from 'svelte/store';
 import { Instruction, InstructionType } from './instruction';
-import { copyArchitecture } from './configuration';
-import { Metrics } from './metrics';
 
 export interface Component {
 	id: string;
@@ -16,11 +12,6 @@ export interface Component {
 function genericGoToMoreCapacity(i: Instruction, possiblenNexts: Component[]) {
 	return possiblenNexts.sort((a, b) => a.instructionsInside.length - b.instructionsInside.length)[0]
 		.id;
-}
-
-function isRegisterBankFull(components: Component[]): boolean {
-	const registerBank = components.find((component) => component.id === 'BR');
-	return registerBank ? registerBank.instructionsInside.length === 15 : false;
 }
 
 export const Pentium1Simulator: Component[] = [
@@ -205,6 +196,3 @@ export const EscalarSimulator: Component[] = [
 		instructionsPerCycle: 1
 	}
 ];
-
-// copy from
-let ScalarIMT: Component[] = copyArchitecture(EscalarSimulator);

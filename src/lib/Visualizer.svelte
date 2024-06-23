@@ -16,7 +16,7 @@
 	// 👇 this is important! You need to import the styles for Svelte Flow to work
 	import '@xyflow/svelte/dist/style.css';
 	import Dagre from 'dagre';
-	import { ProcessorManager } from './components';
+	import { ProcessorManager } from './process'
 	import { type Component } from './component';
 	import { onMount } from 'svelte';
 	import ComponentNode from './ComponentNode.svelte';

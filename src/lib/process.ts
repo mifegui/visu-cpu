@@ -28,6 +28,9 @@ export class ProcessorManager {
 	}
 
 	private changeConfig(config: Configuration) {
+		let runAgain = this.isOver == true;
+		this.isOver = false;
+		if (runAgain) this.run();
 		this.clock = 0;
 		this.components.set(
 			copyArchitecture(configToArchitectureMatrix[config.multithreading][config.scalar])
@@ -79,14 +82,14 @@ export class ProcessorManager {
 					return this.processEachComponent(components);
 				});
 			}
-			setTimeout(() => {
-				executeCycle();
-			}, 2000);
+			if (!this.isOver) {
+				setTimeout(() => {
+					executeCycle();
+				}, 500);
+			}
 		};
-		if (!this.isOver) {
-			await delay(2000);
-			executeCycle();
-		}
+		await delay(500);
+		executeCycle();
 	}
 }
 

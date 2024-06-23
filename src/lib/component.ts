@@ -15,6 +15,23 @@ function genericGoToMoreCapacity(i: Instruction, possiblenNexts: Component[]) {
 		.id;
 }
 
+function randomInstructions(): Instruction {
+	const op = ['add', 'sub', 'lw', 'sw', 'slt', 'xor', 'or'];
+	const registers = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9'];
+	const randomOp = op[Math.floor(Math.random() * op.length)];
+	const randomRegisters = registers[Math.floor(Math.random() * registers.length)];
+	const randomRegisters2 = registers[Math.floor(Math.random() * registers.length)];
+	const randomRegisters3 = registers[Math.floor(Math.random() * registers.length)];
+	// take in mind that syntax of lw and sw is different
+	if (randomOp === 'lw' || randomOp === 'sw') {
+		return new Instruction(0, `${randomOp} ${randomRegisters}, 0(${randomRegisters2})`);
+	}
+	return new Instruction(
+		0,
+		`${randomOp} ${randomRegisters}, ${randomRegisters2}, ${randomRegisters3}`
+	);
+}
+
 function defaultInstructions() {
 	return [
 		new Instruction(0, 'add x1, x2, x3'),

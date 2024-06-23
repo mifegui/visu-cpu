@@ -10,7 +10,8 @@
 	let config = writable<Configuration>({
 		multithreading: 'no',
 		scalar: 'super-scalar',
-		pause: false
+		pause: false,
+		numPipelines: 2,
 	});
 	let pm = new ProcessorManager(config);
 	$: ipc = pm.metrics.ipc;
@@ -22,6 +23,10 @@
 
 	function setScalar(value: any) {
 		config.update((c) => ({ ...c, scalar: value }));
+	}
+
+	function setNumPipelines(value: any) {
+		config.update((c) => ({ ...c, numPipelines: value }));
 	}
 
 	function togglePause() {

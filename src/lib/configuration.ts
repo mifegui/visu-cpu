@@ -3,6 +3,7 @@ import { BMTScalar, BMTSuperscalar, EscalarSimulator, IMTScalar, IMTSuperScalar,
 export interface Configuration {
 	multithreading: 'no' | 'imt' | 'bmt' | 'smt';
 	scalar: 'scalar' | 'super-scalar';
+	numPipelines: number;
 	pause: boolean;
 }
 

@@ -51,151 +51,106 @@ function defaultInstructions() {
 		new Instruction(0, 'sub x1, x2, x3')
 	];
 }
-export const Pentium1Simulator: Component[] = [
-	{
-		name: 'Memória de Instruções',
-		id: 'IM',
-		instructionsInside: defaultInstructions(),
-		goingTo: ['IF'],
-		instructionsPerCycle: 2
-	},
-	{
-		name: 'Banco de registradores',
-		id: 'BR',
-		instructionsInside: [],
-		goingTo: [],
-		instructionsPerCycle: 1
-	},
-	{
-		name: 'IF', // Instruction Fetch
-		id: 'IF',
-		instructionsInside: [],
-		goingTo: ['OF', 'OF2'],
-		instructionsPerCycle: 2,
-		decideToGoWhere: genericGoToMoreCapacity
-	},
-	{
-		name: 'OF',
-		id: 'OF2',
-		instructionsInside: [],
-		goingTo: ['JI'],
-		instructionsPerCycle: 2
-	},
-	{
-		name: 'OF',
-		id: 'OF',
-		instructionsInside: [],
-		goingTo: ['JI2'],
-		instructionsPerCycle: 2
-	},
-	{
-		name: 'Janela de instruções',
-		id: 'JI',
-		instructionsInside: [],
-		goingTo: ['ULA', 'LU', 'SU'],
-		decideToGoWhere: (ins: Instruction, _) => {
-			if (ins.toString().includes('lw')) return 'LU';
-			if (ins.toString().includes('sw')) return 'SU';
-			return 'ULA';
+function createPentium1Simulator(numPipelines: number): Component[] {
+	const components: Component[] = [
+		{
+			name: 'Memória de Instruções',
+			id: 'IM',
+			instructionsInside: defaultInstructions(),
+			goingTo: ['IF'],
+			instructionsPerCycle: 2
 		},
-		instructionsPerCycle: 2
-	},
-	{
-		name: 'Janela de instruções',
-		id: 'JI2',
-		instructionsInside: [],
-		goingTo: ['ULA2', 'LU2', 'SU2'],
-		decideToGoWhere: (ins: Instruction, _) => {
-			if (ins.toString().includes('lw')) return 'LU2';
-			if (ins.toString().includes('sw')) return 'SU2';
-			return 'ULA2';
+		{
+			name: 'Banco de registradores',
+			id: 'BR',
+			instructionsInside: [],
+			goingTo: [],
+			instructionsPerCycle: 1
 		},
-		instructionsPerCycle: 2
-	},
-	{
-		name: 'ULA',
-		id: 'ULA',
-		instructionsInside: [],
-		goingTo: ['MEM'],
-		instructionsPerCycle: 1,
-		maxInside: 1
-	},
-	{
-		name: 'Load Unit',
-		id: 'LU',
-		instructionsInside: [],
-		goingTo: ['MEM'],
-		instructionsPerCycle: 1,
-		maxInside: 1
-	},
-	{
-		name: 'Store Unit',
-		id: 'SU',
-		instructionsInside: [],
-		goingTo: ['MEM'],
-		instructionsPerCycle: 1,
-		maxInside: 1
-	},
-	{
-		name: 'ULA',
-		id: 'ULA2',
-		instructionsInside: [],
-		goingTo: ['MEM2'],
-		instructionsPerCycle: 1,
-		maxInside: 1
-	},
-	{
-		name: 'Load Unit',
-		id: 'LU2',
-		instructionsInside: [],
-		goingTo: ['MEM2'],
-		instructionsPerCycle: 1,
-		maxInside: 1
-	},
-	{
-		name: 'Store Unit',
-		id: 'SU2',
-		instructionsInside: [],
-		goingTo: ['MEM2'],
-		instructionsPerCycle: 1,
-		maxInside: 1
-	},
-	{
-		name: 'MEM', // Memory
-		id: 'MEM2',
-		instructionsInside: [],
-		goingTo: ['OS2', 'MD'],
-		instructionsPerCycle: 1
-	},
-	{
-		name: 'MEM', // Memory
-		id: 'MEM',
-		instructionsInside: [],
-		goingTo: ['OS', 'MD'],
-		instructionsPerCycle: 1
-	},
-	{
-		name: 'OS',
-		id: 'OS2',
-		instructionsInside: [],
-		goingTo: ['BR'],
-		instructionsPerCycle: 1
-	},
-	{
-		name: 'OS',
-		id: 'OS',
-		instructionsInside: [],
-		goingTo: ['BR'],
-		instructionsPerCycle: 1
-	},
-	{
+		{
+			name: 'IF', // Instruction Fetch
+			id: 'IF',
+			instructionsInside: [],
+			goingTo: Array.from({ length: numPipelines }, (_, i) => `OF${i + 1}`),
+			instructionsPerCycle: 2,
+			decideToGoWhere: (ins, possiblenNexts) => possiblenNexts[Math.floor(Math.random() * possiblenNexts.length)].id
+		}
+	];
+
+	for (let i = 1; i <= numPipelines; i++) {
+		components.push(
+			{
+				name: 'OF',
+				id: `OF${i}`,
+				instructionsInside: [],
+				goingTo: [`JI${i}`],
+				instructionsPerCycle: 2
+			},
+			{
+				name: 'Janela de instruções',
+				id: `JI${i}`,
+				instructionsInside: [],
+				goingTo: [`ULA${i}`, `LU${i}`, `SU${i}`],
+				decideToGoWhere: (ins: Instruction, _) => {
+					if (ins.toString().includes('lw')) return `LU${i}`;
+					if (ins.toString().includes('sw')) return `SU${i}`;
+					return `ULA${i}`;
+				},
+				instructionsPerCycle: 2
+			},
+			{
+				name: 'ULA',
+				id: `ULA${i}`,
+				instructionsInside: [],
+				goingTo: [`MEM${i}`],
+				instructionsPerCycle: 1,
+				maxInside: 1
+			},
+			{
+				name: 'Load Unit',
+				id: `LU${i}`,
+				instructionsInside: [],
+				goingTo: [`MEM${i}`],
+				instructionsPerCycle: 1,
+				maxInside: 1
+			},
+			{
+				name: 'Store Unit',
+				id: `SU${i}`,
+				instructionsInside: [],
+				goingTo: [`MEM${i}`],
+				instructionsPerCycle: 1,
+				maxInside: 1
+			},
+			{
+				name: 'MEM', // Memory
+				id: `MEM${i}`,
+				instructionsInside: [],
+				goingTo: [`OS${i}`, 'MD'],
+				instructionsPerCycle: 1
+			},
+			{
+				name: 'OS',
+				id: `OS${i}`,
+				instructionsInside: [],
+				goingTo: ['BR'],
+				instructionsPerCycle: 1
+			}
+		);
+	}
+
+	components.push({
 		name: 'Memória de dados',
 		id: 'MD',
 		goingTo: [],
 		instructionsInside: [],
 		instructionsPerCycle: 1
-	}
-];
+	});
+
+	return components;
+}
+
+export const Pentium1Simulator = createPentium1Simulator(2); // Aqui você pode definir o número de pipelines desejado
 
 // No Multihread Superescalar
 export const EscalarSimulator: Component[] = [

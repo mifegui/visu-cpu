@@ -66,18 +66,33 @@ export class ProcessorManager {
 
 	private processEachComponent(components: Component[]) {
 		const processed: Instruction[] = [];
+		let alreadyCounted = 0;
+		for ( let k = 0; k < components.length; k++) {
+			let component = components[k];
+			if (
+				component.id.includes('EX') ||
+				component.id.includes('ULA') ||
+				component.id.includes('LU') ||
+				component.id.includes('SU')
+			) {
+				if(alreadyCounted == 0 && component.instructionsInside.length > 0){
+					alreadyCounted++;
+				this.numExecutionCycles++;
+				}
+			}
+		}
 		for (let i = components.length - 1; i >= 0; i--) {
 			let component = components[i];
 			if (component.instructionsInside.length == 0) continue;
 			let nProcessed = 0;
 			let toRemove = [];
+			
 			for (
 				let j = 0;
 				j < component.instructionsInside.length && nProcessed < component.instructionsPerCycle;
 				j++
 			) {
 				if (!component.goingTo.length) continue;
-				this.countCycles(component);
 				const instruction = component.instructionsInside[j];
 				if (!instruction) continue;
 				if (processed.find((i) => i.id == instruction!.id)) continue;
@@ -85,9 +100,9 @@ export class ProcessorManager {
 				const nextComponentId = !component.decideToGoWhere
 					? component.goingTo[0]
 					: component.decideToGoWhere!(
-							instruction,
-							component.goingTo.map((id) => components.find((c) => c.id === id)!)
-						);
+						instruction,
+						component.goingTo.map((id) => components.find((c) => c.id === id)!)
+					);
 				const nextComponent = components.find((c) => c.id === nextComponentId);
 				if (!nextComponent) continue;
 				if (

@@ -1,8 +1,8 @@
 import { read } from '$app/server';
 import { get, readable, writable, type Writable } from 'svelte/store';
 import { Instruction, InstructionType } from './instruction';
-import { EscalarSimulator, Pentium1Simulator, type Component } from './component';
-import { configToArchitectureMatrix, copyArchitecture, type Configuration } from './configuration';
+import { EscalarSimulator, Pentium1Simulator, copyArchitecture, type Component } from './component';
+import { configToArchitectureMatrix, type Configuration } from './configuration';
 import { Metrics } from './metrics';
 
 export class ProcessorManager {

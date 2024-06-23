@@ -1,4 +1,4 @@
-import { EscalarSimulator, Pentium1Simulator, type Component } from './component';
+import { BMTScalar, BMTSuperscalar, EscalarSimulator, IMTScalar, IMTSuperScalar, Pentium1Simulator, SMTScalar, SMTSuperscalar } from './component';
 
 export interface Configuration {
 	multithreading: 'no' | 'imt' | 'bmt' | 'smt';
@@ -8,17 +8,8 @@ export interface Configuration {
 
 export const configToArchitectureMatrix = {
 	no: { scalar: EscalarSimulator, 'super-scalar': Pentium1Simulator },
-	imt: { scalar: EscalarSimulator, 'super-scalar': Pentium1Simulator },
-	bmt: { scalar: EscalarSimulator, 'super-scalar': Pentium1Simulator },
-	smt: { scalar: EscalarSimulator, 'super-scalar': Pentium1Simulator }
+	imt: { scalar: IMTScalar, 'super-scalar': IMTSuperScalar },
+	bmt: { scalar: BMTScalar, 'super-scalar': BMTSuperscalar },
+	smt: { scalar: SMTScalar, 'super-scalar': SMTSuperscalar }
 };
 
-export function copyArchitecture(arch: Component[]) {
-	return arch.map((component) => {
-		return {
-			...component,
-			instructionsInside: [...component.instructionsInside],
-			goingTo: [...component.goingTo]
-		};
-	});
-}

@@ -3,15 +3,16 @@ import { get, readable, writable, type Writable } from 'svelte/store';
 import { Instruction, InstructionType } from './instruction';
 import { EscalarSimulator, Pentium1Simulator, type Component } from './component';
 import { configToArchitectureMatrix, copyArchitecture, type Configuration } from './configuration';
+import { Metrics } from './metrics';
 
 export class ProcessorManager {
-	// construtor da classe pra receber a variável config
-	// e atribuir ela a uma variável privada
 	//private config: Writable<Configuration>;
 	private clock = 0;
 	public components: Writable<Component[]> = writable(EscalarSimulator);
 	private paused = false;
 	private config: Configuration;
+	private isOver = false;
+	private metrics = new Metrics();
 
 	constructor(config: Writable<Configuration>) {
 		// on condifg change
@@ -31,6 +32,10 @@ export class ProcessorManager {
 		this.components.set(
 			copyArchitecture(configToArchitectureMatrix[config.multithreading][config.scalar])
 		);
+	}
+	isRegisterBankFull(components: Component[]): boolean {
+		const registerBank = components.find((component) => component.id === 'BR');
+		return registerBank ? registerBank.instructionsInside.length === 15 : false;
 	}
 
 	private processEachComponent(components: Component[]) {
@@ -56,6 +61,14 @@ export class ProcessorManager {
 					processed.push(instruction);
 				}
 			}
+			if (this.isRegisterBankFull(components)) {
+				console.log('Banco de Registradores está cheio com 15 instruções.');
+				console.log('IPC: ', 15 / this.clock);
+				console.log('clock: ', this.clock);
+				this.metrics.setIpc(15 / this.clock);
+				this.isOver = true;
+			}
+			return components;
 		}
 		return components;
 	}
@@ -71,8 +84,10 @@ export class ProcessorManager {
 				executeCycle();
 			}, 2000);
 		};
-		await delay(2000);
-		executeCycle();
+		if (!this.isOver) {
+			await delay(2000);
+			executeCycle();
+		}
 	}
 }
 

@@ -1,10 +1,12 @@
+import { writable, type Writable } from "svelte/store";
+
 export class Metrics{
-    public ipc: number;
+    public ipc = writable(0) as Writable<number>
     //adicionar outras metricas que forem necessarias
     constructor(){
-        this.ipc = 0;
+        this.ipc.set(0);
     }
     setIpc(ipc: number){
-        this.ipc = ipc;
+        this.ipc.set(ipc);
     }
 }

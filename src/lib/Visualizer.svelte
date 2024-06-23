@@ -22,10 +22,11 @@
 	import ComponentNode from './ComponentNode.svelte';
 	import type { Configuration } from './configuration';
 
+
 	export let config: Writable<Configuration>;
+	export let pm: ProcessorManager;
 	// let { dm }: { dm: DataManager } = $props();
 
-	let pm = new ProcessorManager(config);
 	pm.run();
 	$: comps = pm.components;
 	$: createNodesAndEdges($comps);

@@ -2,6 +2,7 @@
 	import { browser } from '$app/environment';
 	import Visualizer from '$lib/Visualizer.svelte';
 	import type { Configuration } from '$lib/configuration';
+	import { ProcessorManager } from '$lib/process';
 	import { SvelteFlowProvider } from '@xyflow/svelte';
 	import { writable } from 'svelte/store';
 
@@ -9,10 +10,10 @@
 	let config = writable<Configuration>({
 		multithreading: 'no',
 		scalar: 'super-scalar',
-		pipelines: 2,
 		pause: false
 	});
-
+	let pm = new ProcessorManager(config);
+	$: ipc = pm.metrics.ipc;
 	// Functions to update the configuration
 	function setMultithreading(value: any) {
 		config.update((c) => ({ ...c, multithreading: value }));
@@ -66,13 +67,14 @@
 				<button class="btn btn-primary" class:paused={$config.pause} on:click={togglePause}
 					>{$config.pause ? 'Resume' : 'Pause'}</button
 				>
+				<span class="ml-4">{$ipc === 0 ? '' : 'IPC:' + $ipc}</span>
 			</div>
 		</div>
 	</div>
 	<div class="h-full">
 		{#if browser}
 			<SvelteFlowProvider>
-				<Visualizer {config}></Visualizer>
+				<Visualizer {config} {pm}></Visualizer>
 			</SvelteFlowProvider>
 		{/if}
 	</div>

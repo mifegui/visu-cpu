@@ -12,7 +12,8 @@ export class ProcessorManager {
 	private paused = false;
 	private config: Configuration;
 	private isOver = false;
-	private metrics = new Metrics();
+	public metrics = new Metrics();
+	private numExecutionCycles = 0;
 
 	constructor(config: Writable<Configuration>) {
 		// on condifg change
@@ -30,6 +31,8 @@ export class ProcessorManager {
 	private changeConfig(config: Configuration) {
 		let runAgain = this.isOver == true;
 		this.isOver = false;
+		this.metrics.setIpc(0);
+		this.numExecutionCycles = 0;
 		if (runAgain) this.run();
 		this.clock = 0;
 		this.components.set(
@@ -40,6 +43,13 @@ export class ProcessorManager {
 		const registerBank = components.find((component) => component.id === 'BR');
 		return registerBank ? registerBank.instructionsInside.length === 15 : false;
 	}
+	countCycles(component: Component) {
+		if (component.id === 'EX') {
+		console.log('ex');
+		this.numExecutionCycles++;
+		console.log(this.numExecutionCycles);
+		}
+	}
 
 	private processEachComponent(components: Component[]) {
 		const processed: Instruction[] = [];
@@ -48,6 +58,7 @@ export class ProcessorManager {
 			if (component.instructionsInside.length == 0) continue;
 			for (let j = 0; j < component.instructionsPerCycle; j++) {
 				if (!component.goingTo.length) continue;
+				this.countCycles(component);
 				const instruction = component.instructionsInside.shift();
 				if (!instruction) continue;
 				if (processed.find((i) => i.id == instruction!.id)) continue;
@@ -66,9 +77,9 @@ export class ProcessorManager {
 			}
 			if (this.isRegisterBankFull(components)) {
 				console.log('Banco de Registradores está cheio com 15 instruções.');
-				console.log('IPC: ', 15 / this.clock);
+				console.log('IPC: ', 15 / this.numExecutionCycles);
 				console.log('clock: ', this.clock);
-				this.metrics.setIpc(15 / this.clock);
+				this.metrics.setIpc(15 / this.numExecutionCycles);
 				this.isOver = true;
 			}
 		}

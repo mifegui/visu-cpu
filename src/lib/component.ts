@@ -61,12 +61,26 @@ export const Pentium1Simulator: Component[] = [
 		name: 'OF',
 		id: 'OF2',
 		instructionsInside: [],
-		goingTo: ['EX2'],
+		goingTo: ['JI'],
 		instructionsPerCycle: 1
 	},
 	{
 		name: 'OF',
 		id: 'OF',
+		instructionsInside: [],
+		goingTo: ['JI2'],
+		instructionsPerCycle: 1
+	},
+	{
+		name: 'Janela de instruções',
+		id: 'JI',
+		instructionsInside: [],
+		goingTo: ['EX2'],
+		instructionsPerCycle: 1
+	},
+	{
+		name: 'Janela de instruções',
+		id: 'JI2',
 		instructionsInside: [],
 		goingTo: ['EX'],
 		instructionsPerCycle: 1

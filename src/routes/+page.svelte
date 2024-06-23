@@ -14,6 +14,7 @@
 	});
 	let pm = new ProcessorManager(config);
 	$: ipc = pm.metrics.ipc;
+	$: ciclos = pm.metrics.ciclos;
 	// Functions to update the configuration
 	function setMultithreading(value: any) {
 		config.update((c) => ({ ...c, multithreading: value }));
@@ -67,7 +68,8 @@
 				<button class="btn btn-primary" class:paused={$config.pause} on:click={togglePause}
 					>{$config.pause ? 'Resume' : 'Pause'}</button
 				>
-				<span class="ml-4">{$ipc === 0 ? '' : 'IPC:' + $ipc}</span>
+				<span class="ml-4">{$ipc === 0 ? '' : 'IPC: ' + $ipc}</span>
+				<span class="ml-4">{$ciclos === 0 ? '' : 'Quantidade de ciclos gastos: ' + $ciclos}</span>
 			</div>
 		</div>
 	</div>

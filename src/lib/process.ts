@@ -13,7 +13,7 @@ export class ProcessorManager {
 	private config: Configuration;
 	private isOver = false;
 	public metrics = new Metrics();
-	private numExecutionCycles = 0;
+	public numExecutionCycles = 0;
 
 	constructor(config: Writable<Configuration>) {
 		// on condifg change
@@ -32,6 +32,7 @@ export class ProcessorManager {
 		let runAgain = this.isOver == true;
 		this.isOver = false;
 		this.metrics.setIpc(0);
+		this.metrics.setCiclos(0);
 		this.numExecutionCycles = 0;
 		if (runAgain) this.run();
 		this.clock = 0;
@@ -80,6 +81,7 @@ export class ProcessorManager {
 				console.log('IPC: ', 15 / this.numExecutionCycles);
 				console.log('clock: ', this.clock);
 				this.metrics.setIpc(15 / this.numExecutionCycles);
+				this.metrics.setCiclos(this.numExecutionCycles);
 				this.isOver = true;
 			}
 		}
